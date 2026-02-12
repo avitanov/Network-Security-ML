@@ -1,12 +1,15 @@
 import logging
 import os
 from datetime import datetime
+from pathlib import Path
+
 
 LOG_FILE = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
-logs_dir = os.path.join(os.getcwd(), "logs")
-os.makedirs(logs_dir, exist_ok=True)
+project_root = Path(__file__).resolve().parents[2] 
+logs_dir = project_root / "logs"
+logs_dir.mkdir(parents=True, exist_ok=True)
 
-LOG_FILE_PATH = os.path.join(logs_dir, LOG_FILE)
+LOG_FILE_PATH = logs_dir / LOG_FILE
 
 logging.basicConfig(
     filename=LOG_FILE_PATH,
@@ -15,4 +18,5 @@ logging.basicConfig(
 )
 
 if __name__ == "__main__":
+    print("Started")
     logging.info("Logging has started")
