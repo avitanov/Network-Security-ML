@@ -2,7 +2,7 @@ import os
 import sys
 import json
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # pyright: ignore[reportMissingImports]
 load_dotenv()
 
 MONGO_DB_URL=os.getenv("MONGO_DB_URL")
@@ -10,7 +10,7 @@ print(MONGO_DB_URL)
  
 import pandas as pd
 import numpy as np
-import pymongo 
+import pymongo   # pyright: ignore[reportMissingImports]
 
 from  network_security.exception.exception import CustomException
 from network_security.logging.logger import logging
