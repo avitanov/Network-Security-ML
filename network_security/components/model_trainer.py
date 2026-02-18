@@ -21,6 +21,10 @@ from sklearn.ensemble import (
     GradientBoostingClassifier,
     RandomForestClassifier,
 )
+import mlflow  # pyright: ignore[reportMissingImports]
+import dagshub
+dagshub.init(repo_owner='avitanov', repo_name='Network-Security-ML', mlflow=True)
+
 
 class ModelTrainer:
     def __init__(
@@ -34,6 +38,20 @@ class ModelTrainer:
         except Exception as e:
             raise CustomException(e,sys)
     
+    def track_mlflow(self,best_model,classification_train_metric:ClassificationMetricArtifact):
+        with mlflow.start_run():
+            f1_score=classification_train_metric.f1_score
+            recall_score=classification_train_metric.recall_score
+            precision_score=classification_train_metric.precision_score
+
+            mlflow.log_metric("f1_score",f1_score)
+            mlflow.log_metric("recall_score",recall_score)
+            mlflow.log_metric("precision_score",precision_score)
+            mlflow.sklearn.log_model(best_model,"model")
+
+
+
+
     def train_model(self,X_train,y_train,X_test,y_test):
         models= {
             "Random Forest": RandomForestClassifier(verbose=1),
@@ -82,8 +100,15 @@ class ModelTrainer:
         y_train_pred=best_model.predict(X_train)
         classification_train_metric=get_classification_score(y_true=y_train,y_pred=y_train_pred)
 
+        #TRACK THE MLFLOW
+        self.track_mlflow(best_model,classification_train_metric)
+
+
         y_test_pred=best_model.predict(X_test)
         classification_test_metric=get_classification_score(y_true=y_test,y_pred=y_test_pred)
+
+        self.track_mlflow(best_model,classification_test_metric)
+
 
         preprocessor=load_object(file_path=self.data_transformation_artifact.transformed_object_file_path)
 
@@ -101,6 +126,8 @@ class ModelTrainer:
         logging.info(f"Model trainer artifact: {model_trainer_artifact}")
         return model_trainer_artifact
     
+
+
     def initiate_model_trainer(self)->ModelTrainerArtifact:
         try:
             train_file_path=self.data_transformation_artifact.transformed_train_file_path
