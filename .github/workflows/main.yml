@@ -82,9 +82,9 @@ jobs:
         run: |
          docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
          
-      #- name: Stop and remove  container if running
-       # run: |
-        # docker ps -q --filter "name=networksecurity" | grep -q . && docker stop networksecurity && docker rm -fv networksecurity
+      - name: Stop and remove  container if running
+        run: |
+         docker ps -q --filter "name=networksecurity" | grep -q . && docker stop networksecurity && docker rm -fv networksecurity
        
       - name: Run Docker Image to serve users
         run: |
@@ -92,3 +92,9 @@ jobs:
       - name: Clean previous images and containers
         run: |
          docker system prune -f
+      
+        - name: Health check
+        run: |
+          sleep 3
+          curl -I http://localhost:8080/docs
+          docker ps --format "table {{.Names}}\t{{.Ports}}\t{{.Status}}"
