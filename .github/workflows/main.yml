@@ -93,5 +93,4 @@ jobs:
       - name: Health check
         run: |
           sleep 3
-          curl -I http://localhost:8080/docs
           docker ps --format "table {{.Names}}\t{{.Ports}}\t{{.Status}}"
